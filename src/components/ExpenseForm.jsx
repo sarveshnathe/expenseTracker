@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Input from "./Input";
+import Select from "./Select";
 
 function ExpenseForm({ setExpenses }) {
   const [formData, setFormData] = useState({
@@ -7,8 +9,42 @@ function ExpenseForm({ setExpenses }) {
     amount: "",
   });
 
+  const [errors, setErrors] = useState({});
+
+  const validationConfig = {
+    title: [
+      { required: true, message: "Please enter a title" },
+      { minLenght: 5, message: "Title must be atleast 5 characters long" },
+    ],
+    category: [{ required: true, message: "Please select a category" }],
+    amount: [
+      { required: true, message: "Amount is required" },
+      { type: "number" },
+    ],
+  };
+
+  const validate = (data) => {
+    const errorsData = {};
+
+    Object.entries(data).forEach(([key, value]) => {
+      validationConfig[key].forEach((rule) => {
+        if (rule.required && !value) {
+          errorsData[key] = rule.message;
+        }
+        if (rule.minLenght && value.length < 5) {
+          errorsData[key] = rule.message;
+        }
+      });
+    });
+
+    setErrors(errorsData);
+    return errorsData;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validateResult = validate(formData);
+    if (Object.keys(validateResult).length) return;
     setExpenses((prevState) => [
       ...prevState,
       { ...formData, id: crypto.randomUUID() },
@@ -18,63 +54,46 @@ function ExpenseForm({ setExpenses }) {
       category: "",
       amount: "",
     });
-    console.log("Added", formData);
+  };
+
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    setErrors({});
   };
 
   return (
     <>
       <form className="expense-form" onSubmit={handleSubmit}>
-        <div className="input-container">
-          <label htmlFor="title">Title</label>
-          <input
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData((prevState) => ({
-                ...prevState,
-                title: e.target.value,
-              }))
-            }
-          />
-        </div>
-        <div className="input-container">
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={(e) =>
-              setFormData((prevState) => ({
-                ...prevState,
-                category: e.target.value,
-              }))
-            }
-          >
-            <option value="" hidden>
-              Select Category
-            </option>
-            <option value="Grocery">Grocery</option>
-            <option value="Clothes">Clothes</option>
-            <option value="Bills">Bills</option>
-            <option value="Education">Education</option>
-            <option value="Medicine">Medicine</option>
-          </select>
-        </div>
-        <div className="input-container">
-          <label htmlFor="amount">Amount</label>
-          <input
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={(e) =>
-              setFormData((prevState) => ({
-                ...prevState,
-                amount: e.target.value,
-              }))
-            }
-          />
-        </div>
+        <Input
+          label={"Title"}
+          id={"title"}
+          name={"title"}
+          value={formData.title}
+          onChange={handleOnChange}
+          error={errors.title}
+        />
+        <Select
+          label={"Category"}
+          id={"category"}
+          name={"category"}
+          value={formData.category}
+          options={["Grocery", "Clothes", "Bills", "Education", "Medicine"]}
+          defaultOption="Select Category"
+          onChange={handleOnChange}
+          error={errors.category}
+        />
+        <Input
+          label={"Amount"}
+          id={"amount"}
+          name={"amount"}
+          value={formData.amount}
+          onChange={handleOnChange}
+          error={errors.amount}
+        />
         <button className="add-btn">Add</button>
       </form>
     </>
