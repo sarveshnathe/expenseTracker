@@ -1,6 +1,11 @@
 import React from "react";
 
 function ExpenseTable({ expenses }) {
+  const totalAmount = expenses.reduce(
+    (total, expense) => total + parseFloat(expense.amount),
+    0
+  );
+
   return (
     <>
       <table className="expense-table">
@@ -55,7 +60,7 @@ function ExpenseTable({ expenses }) {
           <tr>
             <th>Total</th>
             <th></th>
-            <th>₹8100</th>
+            <th>{totalAmount}</th>
           </tr>
         </tbody>
       </table>
