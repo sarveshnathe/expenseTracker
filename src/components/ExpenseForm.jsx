@@ -19,7 +19,7 @@ function ExpenseForm({ setExpenses }) {
     category: [{ required: true, message: "Please select a category" }],
     amount: [
       { required: true, message: "Amount is required" },
-      { type: "number" },
+      { type: "number", message: "Only Numbers are Allowed" },
     ],
   };
 
@@ -27,12 +27,18 @@ function ExpenseForm({ setExpenses }) {
     const errorsData = {};
 
     Object.entries(data).forEach(([key, value]) => {
-      validationConfig[key].forEach((rule) => {
+      validationConfig[key].some((rule) => {
         if (rule.required && !value) {
           errorsData[key] = rule.message;
+          return true;
         }
         if (rule.minLenght && value.length < 5) {
           errorsData[key] = rule.message;
+          return true;
+        }
+        if (rule.type === "number" && isNaN(value)) {
+          errorsData[key] = rule.message;
+          return true;
         }
       });
     });

@@ -1,19 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
+import { useFilter } from "../hooks/useFilter";
+import ContextMenu from "./ContextMenu";
 
-function ExpenseTable({ expenses }) {
-  const totalAmount = expenses.reduce(
+function ExpenseTable({ expenses, setExpenses }) {
+  const [filteredData, setQuery] = useFilter(expenses, (data) => data.category);
+
+  const [menuPosition, setMenuPosition] = useState({});
+  const [rowId, setRowId] = useState('');
+  const totalAmount = filteredData.reduce(
     (total, expense) => total + parseFloat(expense.amount),
     0
   );
 
   return (
     <>
-      <table className="expense-table">
+      <ContextMenu menuPosition={menuPosition}  setMenuPosition={setMenuPosition} setExpenses={setExpenses} rowId={rowId} />
+      <table className="expense-table" onClick={()=>setMenuPosition({})}>
         <thead>
           <tr>
             <th>Title</th>
             <th>
-              <select>
+              <select onChange={(e) => setQuery(e.target.value.toLowerCase())}>
                 <option value="">All</option>
                 <option value="grocery">Grocery</option>
                 <option value="clothes">Clothes</option>
@@ -48,19 +55,23 @@ function ExpenseTable({ expenses }) {
           </tr>
         </thead>
         <tbody>
-          {expenses.map(({ id, title, category, amount }) => {
+          {filteredData.map(({ id, title, category, amount }) => {
             return (
-              <tr key={id}>
+              <tr key={id} onContextMenu={(e) => {
+                e.preventDefault()
+                setMenuPosition({ left: e.clientX + 4, top: e.clientY + 4 })
+                setRowId(id)
+              }}>
                 <td>{title}</td>
                 <td>{category}</td>
-                <td>{amount}</td>
+                <td>₹{amount}</td>
               </tr>
             );
           })}
           <tr>
             <th>Total</th>
             <th></th>
-            <th>{totalAmount}</th>
+            <th>₹{totalAmount}</th>
           </tr>
         </tbody>
       </table>
