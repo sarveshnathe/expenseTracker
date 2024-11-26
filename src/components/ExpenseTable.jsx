@@ -2,20 +2,32 @@ import React, { useState } from "react";
 import { useFilter } from "../hooks/useFilter";
 import ContextMenu from "./ContextMenu";
 
-function ExpenseTable({ expenses, setExpenses }) {
+function ExpenseTable({ expenses, setExpenses, setFormData, setEditingRowId}) {
   const [filteredData, setQuery] = useFilter(expenses, (data) => data.category);
 
   const [menuPosition, setMenuPosition] = useState({});
-  const [rowId, setRowId] = useState('');
+  const [rowId, setRowId] = useState("");
+  
   const totalAmount = filteredData.reduce(
     (total, expense) => total + parseFloat(expense.amount),
     0
   );
 
+  
+
   return (
     <>
-      <ContextMenu menuPosition={menuPosition}  setMenuPosition={setMenuPosition} setExpenses={setExpenses} rowId={rowId} />
-      <table className="expense-table" onClick={()=>setMenuPosition({})}>
+      <ContextMenu
+        menuPosition={menuPosition}
+        setMenuPosition={setMenuPosition}
+        setExpenses={setExpenses}
+        setFormData={setFormData}
+        expenses={expenses}
+        rowId={rowId}
+        setEditingRowId={setEditingRowId}
+        
+      />
+      <table className="expense-table" onClick={() => setMenuPosition({})}>
         <thead>
           <tr>
             <th>Title</th>
@@ -57,11 +69,14 @@ function ExpenseTable({ expenses, setExpenses }) {
         <tbody>
           {filteredData.map(({ id, title, category, amount }) => {
             return (
-              <tr key={id} onContextMenu={(e) => {
-                e.preventDefault()
-                setMenuPosition({ left: e.clientX + 4, top: e.clientY + 4 })
-                setRowId(id)
-              }}>
+              <tr
+                key={id}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setMenuPosition({ left: e.clientX + 4, top: e.clientY + 4 });
+                  setRowId(id);
+                }}
+              >
                 <td>{title}</td>
                 <td>{category}</td>
                 <td>₹{amount}</td>
