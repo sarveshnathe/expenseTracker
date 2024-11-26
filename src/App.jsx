@@ -4,6 +4,7 @@ import ExpenseForm from "./components/ExpenseForm";
 import ExpenseTable from "./components/ExpenseTable";
 import ContextMenu from "./components/ContextMenu";
 import expenseData from "./expenseData";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 function App() {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ function App() {
     amount: "",
   });
 
-  const [expenses, setExpenses] = useState(expenseData);
+  const [expenses, setExpenses] = useLocalStorage('expenses', expenseData);
   const [editingRowId, setEditingRowId] = useState('');
 
   return (

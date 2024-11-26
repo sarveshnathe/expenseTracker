@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Input from "./Input";
 import Select from "./Select";
-import expenseData from "../expenseData";
+
 
 function ExpenseForm({ setExpenses, formData, setFormData, editingRowId, setEditingRowId}) {
   const [errors, setErrors] = useState({});
